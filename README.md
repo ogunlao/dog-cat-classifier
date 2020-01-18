@@ -5,3 +5,12 @@ Steps to run the code
 2. Extract the data folder containing train and test
 3. Run the main.py file
 
+Two CNN classifier models are proposed for the problem:  
+
+To run the first model, use  
+<code>python main.py</code>  
+or  
+<code>python main.py model1</code>  
+
+To run the second model, use  
+<code>python main.py model2</code>
