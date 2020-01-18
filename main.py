@@ -11,8 +11,8 @@ import glob
 from PIL import Image
 from torch.utils.data import DataLoader
 from dataset import datasetloader
-from model import CNN
-
+from model import CNN_Model1, CNN_Model2
+import sys
 
 #function to count number of parameters
 def get_n_params(model):
@@ -28,7 +28,7 @@ output_size = 2      # there are 2 classes---Cat and dog
 # number of subprocesses to use for data loading
 num_workers = 0
 # how many samples per batch to load
-batch_size = 60
+batch_size = 64
 
 
 # define training and test data directories
@@ -81,7 +81,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 accuracy_list = []
 
-def train(epoch, model):
+def train(epoch, model, optimizer):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         
@@ -117,16 +117,27 @@ def test(model, perm=torch.arange(0, 224*224*3).long()):
 # Training settings 
 n_features = 8 # hyperparameter
 
-model_cnn = CNN(input_size, n_features, output_size)
-optimizer = optim.SGD(model_cnn.parameters(), lr=0.01, momentum=0.5)
-print(f'Number of parameters: {get_n_params(model_cnn)}')
+# Define Models
+model_cnn1 = CNN_Model1(input_size, n_features, output_size)
+model_cnn2 = CNN_Model2(input_size, n_features, output_size)
 
+optimizer1 = optim.SGD(model_cnn1.parameters(), lr=0.01, momentum=0.5)
+optimizer2 = optim.SGD(model_cnn2.parameters(), lr=0.01, momentum=0.5)
 
+def run_model1():
+    print(f'Number of parameters: {get_n_params(model_cnn1)}')
+    for epoch in range(0, 2):
+        train(epoch, model_cnn1, optimizer1)
+        test(model_cnn1)
+
+def run_model2():
+    for epoch in range(0, 2):
+        print(f'Number of parameters: {get_n_params(model_cnn2)}')
+        train(epoch, model_cnn2, optimizer2)
+        test(model_cnn2)
 
 if __name__ == "__main__":
-    def run_model():
-        for epoch in range(0, 1):
-            train(epoch, model_cnn)
-            test(model_cnn)
-    run_model()
+    if len(sys.argv)>1 and (sys.argv[1]  == 'model2'):
+        run_model2()
+    else: run_model1()
 
